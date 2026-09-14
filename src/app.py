@@ -90,12 +90,29 @@ REQUIRED_COLUMNS = {
 @st.cache_data(show_spinner="Loading HUMS data…")
 def load_csv(path: str) -> pd.DataFrame:
     """Load and lightly validate the HUMS CSV file."""
-    df = pd.read_csv(path, parse_dates=["timestamp"])
+    df = pd.read_csv(path)
 
-    missing = REQUIRED_COLUMNS - set(df.columns)
+    # Map alternate column names (like hums_data2.csv) to standard names
+    rename_map = {
+        "Vehicle": "vehicle_id",
+        "Status": "status",
+        "Temp (C)": "engine_temp_c",
+        "Vibration (mm/s)": "vibration_mm_s",
+        "Run Hours": "run_hours",
+        "Last Reading": "timestamp"
+    }
+    df = df.rename(columns=rename_map)
+
+    required = {"vehicle_id", "engine_temp_c", "vibration_mm_s", "run_hours", "status"}
+    missing = required - set(df.columns)
     if missing:
         st.error(f"CSV is missing required columns: {missing}")
         st.stop()
+
+    if "timestamp" in df.columns:
+        df["timestamp"] = pd.to_datetime(df["timestamp"], errors="coerce")
+    else:
+        df["timestamp"] = pd.to_datetime("now")
 
     df["status"] = df["status"].str.upper().str.strip()
     df["engine_temp_c"]   = pd.to_numeric(df["engine_temp_c"],   errors="coerce")
@@ -104,6 +121,7 @@ def load_csv(path: str) -> pd.DataFrame:
     df = df.dropna(subset=["engine_temp_c", "vibration_mm_s", "run_hours"])
 
     return df
+
 
 
 # ---------------------------------------------------------------------------
