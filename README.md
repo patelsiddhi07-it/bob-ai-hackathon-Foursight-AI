@@ -87,7 +87,7 @@ cp .env.example .env
 
 | Artifact | Link |
 |---|---|
-| 📹 Demo Video | [See demo/demo-video-link.txt](https://youtu.be/22p2941MbFA) |
+| 📹 Demo Video | [See demo/demo-video-link.txt](https://youtu.be/ViHbFZYjBk4?si=ulc-B-408Uke9L-A) |
 | 🌐 Live Demo | [See demo/live-demo-url.txt](https://bob-ai-hackathon-foursight-ai-amapfw2vyhr7tpopjxozdt.streamlit.app) |
 | 🖼️ Screenshots | [See demo/screenshots/](demo/screenshots/) |
 | 📊 Pitch Deck | [View Presentation](https://1drv.ms/p/c/7057D445941E3699/IQBbQelG0VHaT4NHvWMe1D7eASY_s3quDIJ8RpeIGEWZQ14?e=37sm6b) |
