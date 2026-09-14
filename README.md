@@ -90,7 +90,7 @@ cp .env.example .env
 | 📹 Demo Video | [See demo/demo-video-link.txt](demo/demo-video-link.txt) |
 | 🌐 Live Demo | [See demo/live-demo-url.txt](demo/live-demo-url.txt) |
 | 🖼️ Screenshots | [See demo/screenshots/](demo/screenshots/) |
-| 📊 Pitch Deck | [View Presentation](./presentation/FourSight_AI_Pitch_Deck_1.pptx) |
+| 📊 Pitch Deck | [View Presentation](https://1drv.ms/p/c/7057D445941E3699/IQBbQelG0VHaT4NHvWMe1D7eASY_s3quDIJ8RpeIGEWZQ14?e=37sm6b) |
 
 
 ---
