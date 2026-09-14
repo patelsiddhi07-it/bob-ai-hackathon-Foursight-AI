@@ -1,0 +1,12 @@
+vehicle_id,timestamp,vibration_mm_s,run_hours,engine_temp_c,oil_pressure_psi,status
+vehicle_id,timestamp,vibration_mm_s,run_hours,engine_temp_c,oil_pressure_psi,status
+VH-0001,2026-09-02 08:30:00,16.5,1300,115.0,15.2,broken
+VH-0002,2026-09-02 09:00:00,14.2,1210,110.2,18.0,critical
+VH-0003,2026-09-02 09:30:00,11.8,1100,105.4,22.5,warning
+VH-0004,2026-09-02 10:00:00,9.5,950,101.0,26.0,warning
+VH-0005,2026-09-02 10:30:00,7.1,800,96.5,30.2,normal
+VH-0006,2026-09-02 11:00:00,5.8,650,93.0,33.5,normal
+VH-0007,2026-09-02 11:30:00,4.5,500,91.2,36.0,normal
+VH-0008,2026-09-02 12:00:00,3.6,380,90.0,38.1,normal
+VH-0009,2026-09-02 12:30:00,2.8,220,88.5,39.5,normal
+VH-0010,2026-09-02 13:00:00,2.1,110,87.0,41.0,normal
