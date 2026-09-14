@@ -9,51 +9,47 @@
 # =============================================================================
 
 team:
-  name: ""                             # REQUIRED — e.g., "Orion Squad"
-  track: ""                            # REQUIRED — one of: AI | DevOps | Sustainability | Open
+  name: "FourSight AI"                 # REQUIRED — e.g., "Orion Squad"
+  track: "AI"                          # REQUIRED — one of: AI | DevOps | Sustainability | Open
   lead:
-    name: ""                           # REQUIRED — e.g., "Alice Chen"
-    email: ""                          # REQUIRED — e.g., "alice.chen@ibm.com"
+    name: "Medha Raychura"             # REQUIRED — e.g., "Alice Chen"
+    email: "medharaychura13@gmail.com" # REQUIRED — e.g., "alice.chen@ibm.com"
   members:
-    - name: ""                         # REQUIRED — Team member 1
+    - name: "Daivik Patel"             # REQUIRED — Team member 1
       email: ""
-    - name: ""                         # Add more members by copying the two lines above
+    - name: "Divy Panchal"             # Add more members by copying the two lines above
       email: ""
-    - name: ""
+    - name: "Patel Siddhi"
       email: ""
 
 submission:
-  title: ""                            # REQUIRED — Project display name, e.g., "SmartOps Dashboard"
+  title: "FourSight AI — Mission Readiness & Predictive Maintenance Copilot" # REQUIRED — Project display name
 
   problem_statement: >                 # REQUIRED — 1-3 sentences. What problem? Who has it?
-    Replace this text with a concise description of the real-world problem
-    your project addresses and who experiences it.
+    Military organizations need to reliably determine whether aircraft and other equipment are mission-ready, but maintenance is often based on fixed schedules rather than the actual condition of each asset. This can lead to unexpected equipment failures and reduced operational readiness. FourSight AI analyzes sensor data and service records to identify non-ready assets, explain readiness issues, and help maintenance teams act before critical failures occur.
 
   solution_summary: >                  # REQUIRED — 1-3 sentences. What did you build?
-    Replace this text with a clear description of your solution
-    and how it addresses the problem above.
+    FourSight AI is an AI-powered mission readiness and predictive maintenance copilot that analyzes equipment sensor data and service records to assess asset readiness and identify potential maintenance issues. It explains the reasons behind each readiness status, predicts components that may fail before the next mission window, and generates a prioritized maintenance plan so maintenance teams can take action proactively.
 
   key_features:                        # REQUIRED — List 3 to 5 specific features you implemented
-    - ""                               # e.g., "Real-time pipeline anomaly detection using watsonx.ai"
-    - ""
-    - ""
-    - ""                               # optional 4th
-    - ""                               # optional 5th
+    - "Mission Readiness Assessment — Automatically classifies each asset as Ready, At Risk, or Not Ready based on sensor data and service records."
+    - "Explainable Readiness Analysis — Clearly explains the key sensor abnormalities, maintenance history, and other factors affecting an asset's readiness status."
+    - "Predictive Failure Detection — Identifies components at risk of failure before the next mission window using equipment condition and historical maintenance data."
+    - "Prioritized Maintenance Plan — Recommends maintenance actions and prioritizes assets based on failure risk and mission-readiness impact."
+    - "Mission Readiness Dashboard — Provides a centralized view of asset health, readiness status, risk levels, predicted failures, and recommended actions."
 
   tech_stack:
-    languages: []                      # REQUIRED — e.g., ["Python", "TypeScript"]
-    frameworks: []                     # e.g., ["FastAPI", "React"]
-    ibm_technologies: []               # e.g., ["watsonx.ai", "IBM Bob", "IBM Cloud Functions"]
-    databases: []                      # e.g., ["PostgreSQL", "Redis"]
-    other: []                          # e.g., ["Docker", "GitHub Actions", "Slack API"]
+    languages: ["Python", "JavaScript", "HTML", "CSS"] # REQUIRED
+    frameworks: ["FastAPI", "React"]                   # e.g., ["FastAPI", "React"]
+    ibm_technologies: ["IBM Bob"]                      # e.g., ["watsonx.ai", "IBM Bob", "IBM Cloud Functions"]
+    databases: ["SQLite"]                              # e.g., ["PostgreSQL", "Redis"]
+    other: ["Git", "GitHub", "GitHub Actions"]         # e.g., ["Docker", "GitHub Actions", "Slack API"]
 
-  what_we_are_most_proud_of: >         # Optional but recommended — guides judges to your best work
-    Replace with what aspect of the submission you consider strongest
-    and want judges to pay special attention to.
+  what_we_are_most_proud_of: >         # Optional but recommended
+    FourSight AI turns raw equipment condition and maintenance data into actionable mission-readiness intelligence. Instead of simply showing sensor values, our solution connects readiness assessment, explainable risk analysis, predictive failure detection, and prioritized maintenance recommendations in one copilot workflow. We are especially proud of building the solution around the real operational challenge of preventing unexpected equipment failures before a mission, while keeping the system explainable.
 
-  known_limitations: >                 # Optional but recommended — be honest about gaps
-    Replace with any known limitations, incomplete features,
-    or shortcuts taken due to time constraints.
+  known_limitations: >                 # Optional but recommended
+    Hackathon MVP Scope: The system is designed as a functional proof of concept and may require additional testing. Dataset Dependency: Prediction quality depends on the availability and completeness of sensor/service data. Predictive Accuracy: Failure predictions are intended to support decisions and are not guaranteed. Limited Validation: Not yet validated on live military equipment.
 
 # =============================================================================
 # ARTIFACT LOCATIONS
@@ -64,6 +60,6 @@ artifacts:
   setup_guide: "docs/setup-guide.md"
   architecture_doc: "docs/architecture.md"
   demo_video: "demo/demo-video-link.txt"   # URL to hosted video (YouTube, Loom, Box)
-  live_demo: "demo/live-demo-url.txt"      # URL to deployed demo (optional)
+  live_demo: "https://bob-ai-hackathon-foursight-ai-amapfw2vyhr7tpopjxozdt.streamlit.app"      # URL to deployed demo (optional)
   screenshots: "demo/screenshots/"
-  presentation: "presentation/"
+  presentation: "https://1drv.ms/p/c/7057D445941E3699/IQBbQelG0VHaT4NHvWMe1D7eASY_s3quDIJ8RpeIGEWZQ14?e=37sm6b"
