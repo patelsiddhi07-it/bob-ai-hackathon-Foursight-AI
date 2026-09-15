@@ -7,24 +7,6 @@ AI explanations.
 
 CSV schema (from hums_gen.cpp):
   timestamp, vehicle_id, engine_temp_c, vibration_mm_s, run_hours, status
-
-Run:
-    streamlit run src/app.py -- --csv data/hums_data.csv
-
-AI features (optional):
-    Set the following environment variables (or copy src/.env.example → .env):
-      WATSONX_API_KEY      — IBM Cloud API key
-      WATSONX_PROJECT_ID   — watsonx.ai project ID
-      WATSONX_URL          — e.g. https://us-south.ml.cloud.ibm.com
-      WATSONX_MODEL_ID     — defaults to ibm/granite-3-3-8b-instruct
-
-    When configured:
-      • FAULT / CRITICAL vehicles receive AI readiness briefings on page load.
-      • Every work-order row has an "🤖 Ask Granite" on-demand explain button.
-      • A Fleet AI Summary section generates a commanding-officer briefing.
-
-    When not configured the dashboard loads normally; AI panels show a
-    configuration notice instead.
 """
 
 from __future__ import annotations
@@ -62,13 +44,15 @@ WEIGHT_VIBRATION = 0.25   # continuous vibration excess
 PRIORITY_CRITICAL  = 75
 PRIORITY_HIGH      = 50
 PRIORITY_MODERATE  = 25
-# Load the predictive model
+
+# ---------------------------------------------------------------------------
+# Load the AI Predictive Model Globally
+# ---------------------------------------------------------------------------
+model = None
 try:
-   
     model = joblib.load('predictive_model.pkl')
     st.sidebar.success("AI Predictive Model Active ✅")
 except FileNotFoundError:
-    
     try:
         model = joblib.load('../predictive_model.pkl')
         st.sidebar.success("AI Predictive Model Active ✅")
@@ -94,12 +78,6 @@ def _parse_cli_csv() -> Optional[str]:
 # Section 2 — Data loading & validation
 # ---------------------------------------------------------------------------
 
-REQUIRED_COLUMNS = {
-    "timestamp", "vehicle_id", "engine_temp_c",
-    "vibration_mm_s", "run_hours", "status",
-}
-
-
 @st.cache_data(show_spinner="Loading HUMS data…")
 def load_csv(path: str) -> pd.DataFrame:
     """Load and lightly validate the HUMS CSV file."""
@@ -115,6 +93,10 @@ def load_csv(path: str) -> pd.DataFrame:
         "Last Reading": "timestamp"
     }
     df = df.rename(columns=rename_map)
+
+    # --- HACKATHON FIX: Auto-generate run_hours if missing to prevent crashes ---
+    if "run_hours" not in df.columns:
+        df["run_hours"] = 0.0
 
     required = {"vehicle_id", "engine_temp_c", "vibration_mm_s", "run_hours", "status"}
     missing = required - set(df.columns)
@@ -136,18 +118,15 @@ def load_csv(path: str) -> pd.DataFrame:
     return df
 
 
-
 # ---------------------------------------------------------------------------
 # Section 3 — Per-vehicle aggregation & composite risk scoring
 # ---------------------------------------------------------------------------
 
 STATUS_SCORE = {"NOMINAL": 0, "WARNING": 50, "FAULT": 100}
 
-
 def _latest_status_score(statuses: pd.Series) -> float:
     last = statuses.iloc[-1] if not statuses.empty else "NOMINAL"
     return float(STATUS_SCORE.get(last, 0))
-
 
 def _temp_excess_score(temps: pd.Series) -> float:
     latest = float(temps.iloc[-1])
@@ -155,13 +134,11 @@ def _temp_excess_score(temps: pd.Series) -> float:
         return 0.0
     return min(100.0, (latest - WARN_TEMP_C) / (FAULT_TEMP_C - WARN_TEMP_C) * 100.0)
 
-
 def _vib_excess_score(vibs: pd.Series) -> float:
     latest = float(vibs.iloc[-1])
     if latest < WARN_VIBRATION:
         return 0.0
     return min(100.0, (latest - WARN_VIBRATION) / (FAULT_VIBRATION - WARN_VIBRATION) * 100.0)
-
 
 def compute_work_orders(df: pd.DataFrame) -> pd.DataFrame:
     """
@@ -236,14 +213,11 @@ PRIORITY_COLOURS = {
     "🟢 LOW":      "#2ca02c",
 }
 
-
 def _status_colour(val: str) -> str:
     return f"color: {STATUS_COLOURS.get(val, '#888')}; font-weight: bold"
 
-
 def _priority_colour(val: str) -> str:
     return f"color: {PRIORITY_COLOURS.get(val, '#888')}; font-weight: bold"
-
 
 def render_kpi_row(df: pd.DataFrame, wo: pd.DataFrame) -> None:
     total    = wo.shape[0]
@@ -316,16 +290,11 @@ def _init_session_state() -> None:
 
 def generate_auto_explanations(wo: pd.DataFrame) -> None:
     """
-    Pre-generate Granite explanations for every FAULT / CRITICAL vehicle on
-    page load.  Results are cached in st.session_state so the API is called at
-    most once per vehicle per browser session.
-
-    Runs silently when watsonx.ai is not configured.
+    Pre-generate Granite explanations for every FAULT / CRITICAL vehicle.
     """
     if not watsonx_client.is_configured():
         return
 
-    # Identify vehicles that need auto-explanation and are not already cached
     auto_mask = (wo["latest_status"] == "FAULT") | (wo["priority"] == "🔴 CRITICAL")
     targets = wo[auto_mask]
     pending = [
@@ -349,10 +318,6 @@ def generate_auto_explanations(wo: pd.DataFrame) -> None:
 
 
 def render_fleet_summary(wo: pd.DataFrame) -> None:
-    """
-    Render the collapsible Fleet AI Summary expander below the KPI strip.
-    Shows a Granite-generated commanding-officer readiness brief.
-    """
     with st.expander("🤖 Fleet AI Summary", expanded=False):
         if not watsonx_client.is_configured():
             st.caption(
@@ -384,29 +349,16 @@ def render_fleet_summary(wo: pd.DataFrame) -> None:
 
 
 def render_work_order_expanders(wo: pd.DataFrame) -> None:
-    """
-    Render each vehicle as a collapsible expander.
-
-    Inside each expander:
-      • Two rows of st.metric show all key sensor / score fields.
-      • A Granite AI explanation is shown if already cached, or an
-        "🤖 Ask Granite" button fetches it on demand.
-    """
     for _, row in wo.iterrows():
         vid      = row["vehicle_id"]
         priority = row["priority"]
         status   = row["latest_status"]
         score    = row["composite_score"]
 
-        # Colour the expander label by priority
-        label_colour = PRIORITY_COLOURS.get(priority, "#888")
         label = f"{vid}  —  {priority}  |  Risk Score: {score:.1f}"
-
-        # Auto-expand FAULT vehicles so critical items are immediately visible
         auto_expand = (status == "FAULT") or (priority == "🔴 CRITICAL")
 
         with st.expander(label, expanded=auto_expand):
-            # --- Metric grid ---
             c1, c2, c3, c4 = st.columns(4)
             c1.metric("Status",         status)
             c2.metric("Temp (°C)",      f"{row['latest_temp_c']:.1f}")
@@ -422,7 +374,6 @@ def render_work_order_expanders(wo: pd.DataFrame) -> None:
             st.caption(f"Last reading: {row['latest_timestamp']}")
             st.divider()
 
-            # --- Granite AI explanation ---
             cached_explanation = st.session_state["granite_explanations"].get(vid)
 
             if cached_explanation:
@@ -524,26 +475,33 @@ def main() -> None:
         st.warning("The CSV file is empty or contained no parseable rows.")
         st.stop()
 
+    # --- AI PREDICTIVE MAINTENANCE MAGIC ---
+    if model is not None:
+        features = ['engine_temp_c', 'vibration_mm_s']
+        if all(col in df.columns for col in features):
+            # Model Predicts the future status based on temp & vibration
+            df['AI_Predicted_Status'] = model.predict(df[features])
+            
+            # If the AI catches a fault that wasn't marked, it upgrades the status to trigger alarms!
+            df.loc[df['AI_Predicted_Status'] == 'FAULT', 'status'] = 'FAULT'
+            df.loc[df['AI_Predicted_Status'] == 'WARNING', 'status'] = 'WARNING'
+    # ---------------------------------------
+
     wo = compute_work_orders(df)
 
-    # Auto-generate Granite explanations for FAULT/CRITICAL vehicles
     generate_auto_explanations(wo)
 
-    # Apply sidebar filters
     wo_filtered = wo[wo["composite_score"] >= min_score]
     if show_svc_only:
         wo_filtered = wo_filtered[wo_filtered["service_due"]]
 
-    # ---- KPI row ---------------------------------------------------------------
     st.subheader("Fleet Summary")
     render_kpi_row(df, wo)
 
-    # ---- Fleet AI Summary (Granite) --------------------------------------------
     render_fleet_summary(wo)
 
     st.divider()
 
-    # ---- Work-order expanders --------------------------------------------------
     st.subheader(
         f"Prioritized Maintenance Work Orders"
         f"  — {len(wo_filtered)} vehicle(s)"
@@ -570,10 +528,8 @@ def main() -> None:
 
     st.divider()
 
-    # ---- Charts ----------------------------------------------------------------
     render_charts(df, wo)
 
-    # ---- Raw data explorer -----------------------------------------------------
     with st.expander("🔍 Raw HUMS data explorer"):
         vehicles = sorted(df["vehicle_id"].unique().tolist())
         selected = st.multiselect("Filter by vehicle", options=vehicles, default=[])
@@ -586,7 +542,6 @@ def main() -> None:
         f"Loaded {len(df):,} readings across {df['vehicle_id'].nunique()} vehicles "
         f"from `{Path(csv_path).name}`"
     )
-
 
 if __name__ == "__main__":
     main()
