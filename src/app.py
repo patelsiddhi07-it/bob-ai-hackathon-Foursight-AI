@@ -37,6 +37,7 @@ from typing import Optional
 import numpy as np
 import pandas as pd
 import streamlit as st
+import joblib
 
 import watsonx_client
 
@@ -61,6 +62,18 @@ WEIGHT_VIBRATION = 0.25   # continuous vibration excess
 PRIORITY_CRITICAL  = 75
 PRIORITY_HIGH      = 50
 PRIORITY_MODERATE  = 25
+# Load the predictive model
+try:
+   
+    model = joblib.load('predictive_model.pkl')
+    st.sidebar.success("AI Predictive Model Active ✅")
+except FileNotFoundError:
+    
+    try:
+        model = joblib.load('../predictive_model.pkl')
+        st.sidebar.success("AI Predictive Model Active ✅")
+    except:
+        st.sidebar.error("Model file not found! Please check the path.")
 
 # ---------------------------------------------------------------------------
 # Section 1 — CLI argument parsing (Streamlit forwards args after '--')
