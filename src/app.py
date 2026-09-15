@@ -482,9 +482,9 @@ def main() -> None:
             # Model Predicts the future status based on temp & vibration
             df['AI_Predicted_Status'] = model.predict(df[features])
             
-            # If the AI catches a fault that wasn't marked, it upgrades the status to trigger alarms!
-            df.loc[df['AI_Predicted_Status'] == 'FAULT', 'status'] = 'FAULT'
-            df.loc[df['AI_Predicted_Status'] == 'WARNING', 'status'] = 'WARNING'
+            # Commented out so it won't force-overwrite your CSV colors during demo
+            # df.loc[df['AI_Predicted_Status'] == 'FAULT', 'status'] = 'FAULT'
+            # df.loc[df['AI_Predicted_Status'] == 'WARNING', 'status'] = 'WARNING'
     # ---------------------------------------
 
     wo = compute_work_orders(df)
